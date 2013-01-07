@@ -83,7 +83,7 @@ public class SameLogsSource extends EventSource.Base {
 			System.out.println(helloWorld);
 			//eventImpl = new EventImpl(helloWorld.getBytes());
 			
-			//Thread.sleep(3000);
+			Thread.sleep(300);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

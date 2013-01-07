@@ -38,7 +38,7 @@ import com.google.common.base.Preconditions;
  */
 public class SameLogsSink extends EventSink.Base {
 	static final Logger LOG = LoggerFactory.getLogger(SameLogsSink.class);
-	private PrintWriter pw;
+	private PrintWriter pw = null;
 
 	@Override
 	public void open() throws IOException {
