@@ -44,7 +44,8 @@ public class SameLogsSource extends EventSource.Base {
 	static final Logger LOG = LoggerFactory.getLogger(SameLogsSource.class);
 	
 	private String helloWorld;
-	TailSource tailSource;
+	private TailSource tailSource;
+	private Event eventImpl;
 	
 	public SameLogsSource() {
 	    File f = new File("/home/samelog/logs/rtb_test.2011-11-15.18.Standard.192.168.32.134");
@@ -67,7 +68,7 @@ public class SameLogsSource extends EventSource.Base {
 	@Override
 	public Event next() throws IOException {
 		// Next returns the next event, blocking if none available.
-		Event eventImpl = null;
+		eventImpl = null;
 		try {
 			Date currentTime = new Date();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -76,6 +77,9 @@ public class SameLogsSource extends EventSource.Base {
 
 			eventImpl = new EventImpl();
 			eventImpl = tailSource.next();
+			//	add new attr "TIME"
+			eventImpl.set("TIME", dateString.getBytes());
+			updateEventProcessingStats(eventImpl);
 			System.out.println("#####" + eventImpl);
 			
 			//helloWorld = tailSource.
@@ -95,6 +99,7 @@ public class SameLogsSource extends EventSource.Base {
 	public void close() throws IOException {
 		// Cleanup
 		helloWorld = null;
+		eventImpl = null;
 		tailSource.close();
 	}
 
