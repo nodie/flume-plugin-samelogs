@@ -41,7 +41,7 @@ public class SameLogsDecorator<S extends EventSink> extends
 
 	@Override
 	public void append(Event e) throws IOException, InterruptedException {
-		//	change helloworld,append str
+		//	change helloworld,append an string
 		String helloWorldBody = "Hello World! -- " + new String(e.getBody());
 
 		// make a copy of the event, but with the new body string.
