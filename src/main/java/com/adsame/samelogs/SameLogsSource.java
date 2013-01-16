@@ -43,7 +43,6 @@ import com.google.common.base.Preconditions;
 public class SameLogsSource extends EventSource.Base {
 	static final Logger LOG = LoggerFactory.getLogger(SameLogsSource.class);
 	
-	private String helloWorld;
 	private TailSource tailSource;
 	private Event eventImpl;
 	
@@ -61,7 +60,6 @@ public class SameLogsSource extends EventSource.Base {
 	@Override
 	public void open() throws IOException {
 		// Initialized the source
-		helloWorld = "Hello World!!";
 	}
 	
 	
@@ -73,7 +71,6 @@ public class SameLogsSource extends EventSource.Base {
 			Date currentTime = new Date();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			String dateString = formatter.format(currentTime);
-			helloWorld = dateString;
 
 			eventImpl = new EventImpl();
 			eventImpl = tailSource.next();
@@ -82,12 +79,7 @@ public class SameLogsSource extends EventSource.Base {
 			updateEventProcessingStats(eventImpl);
 			System.out.println("#####" + eventImpl);
 			
-			//helloWorld = tailSource.
-			
-			System.out.println(helloWorld);
-			//eventImpl = new EventImpl(helloWorld.getBytes());
-			
-			Thread.sleep(3000);
+			//Thread.sleep(3000);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -98,9 +90,13 @@ public class SameLogsSource extends EventSource.Base {
 	@Override
 	public void close() throws IOException {
 		// Cleanup
-		helloWorld = null;
 		eventImpl = null;
-		tailSource.close();
+		try {
+			tailSource.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	public static SourceBuilder builder() {

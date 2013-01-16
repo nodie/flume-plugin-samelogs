@@ -25,6 +25,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +36,6 @@ import com.cloudera.flume.conf.Context;
 import com.cloudera.flume.conf.SinkFactory.SinkBuilder;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventSink;
-import com.cloudera.flume.handlers.hdfs.DFSEventSink;
 import com.cloudera.flume.handlers.text.TailSource;
 import com.cloudera.util.Pair;
 import com.google.common.base.Preconditions;
@@ -43,19 +46,18 @@ import com.google.common.base.Preconditions;
 public class SameLogsSink extends EventSink.Base {
 	static final Logger LOG = LoggerFactory.getLogger(SameLogsSink.class);
 	private PrintWriter pw;
-	DFSEventSink dfsEventSink;
-//	EscapedCustomDfsSink escapedCustomDfsSink; 
+//	DFSEventSink dfsEventSink;
+//	EscapedCustomDfsSink escapedCustomDfsSink;
 
 	@Override
 	public void open() throws IOException {
 		// Initialized the sink
 		pw = new PrintWriter(new FileWriter("SameLogs.txt"));
 		
-		dfsEventSink = new DFSEventSink("hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs");
-		dfsEventSink.open();
+//		dfsEventSink = new DFSEventSink("hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs");
+//		dfsEventSink.open();
 
-//		escapedCustomDfsSink = new EscapedCustomDfsSink("hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs"
-//				, "hello");
+//		escapedCustomDfsSink = new EscapedCustomDfsSink(null, "hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs", "hello");
 //		escapedCustomDfsSink.open();
 	}
 
@@ -83,12 +85,29 @@ public class SameLogsSink extends EventSink.Base {
 		
 		
 		try {
-			dfsEventSink.append(e);
+//			dfsEventSink.append(e);
 //			escapedCustomDfsSink.append(e);
 		} catch (Exception e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
+		
+		Configuration configuration = new Configuration();
+		FileSystem hdfsFileSystem = FileSystem.get(configuration);
+		Path path = new Path("hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs/hello");
+		FSDataOutputStream out;
+		System.out.println("exists: " + hdfsFileSystem.exists(path));
+		if (hdfsFileSystem.exists(path)) {
+			out = hdfsFileSystem.append(path);
+		} else {
+			out = hdfsFileSystem.create(path);
+		}
+		
+		out.write(e.getBody());
+		out.writeChar('\n');
+		out.flush();
+		out.close();
+		
 	}
 
 	@Override
@@ -97,7 +116,7 @@ public class SameLogsSink extends EventSink.Base {
 		pw.flush();
 		pw.close();
 		
-		dfsEventSink.close();
+//		dfsEventSink.close();
 //		escapedCustomDfsSink.close();
 	}
 
