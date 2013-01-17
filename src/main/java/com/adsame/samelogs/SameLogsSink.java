@@ -22,8 +22,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
+//import java.util.Iterator;
+import java.util.List;
+//import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -46,19 +48,11 @@ import com.google.common.base.Preconditions;
 public class SameLogsSink extends EventSink.Base {
 	static final Logger LOG = LoggerFactory.getLogger(SameLogsSink.class);
 	private PrintWriter pw;
-//	DFSEventSink dfsEventSink;
-//	EscapedCustomDfsSink escapedCustomDfsSink;
 
 	@Override
 	public void open() throws IOException {
 		// Initialized the sink
 		pw = new PrintWriter(new FileWriter("SameLogs.txt"));
-		
-//		dfsEventSink = new DFSEventSink("hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs");
-//		dfsEventSink.open();
-
-//		escapedCustomDfsSink = new EscapedCustomDfsSink(null, "hdfs://nodie-Ubuntu4:9000/user/nodie/input/dfs", "hello");
-//		escapedCustomDfsSink.open();
 	}
 
 	@SuppressWarnings("rawtypes")
@@ -67,6 +61,7 @@ public class SameLogsSink extends EventSink.Base {
 		// append the event to the output
 		byte[] fn = e.get(TailSource.A_TAILSRCFILE);
 		byte[] bd = e.getBody();
+		System.out.println("##" + new String(fn) + "##" + new String(bd));
 		
 		Map<String, byte[]> maps = e.getAttrs();
 		
@@ -77,20 +72,11 @@ public class SameLogsSink extends EventSink.Base {
             System.out.println("key: " + key);
         }
         
-		System.out.println("##" + new String(fn) + "##" + new String(bd));
-
 		// here we are assuming the body is a string
 		pw.println(new String(e.getBody()));
 		pw.flush(); // so we can see it in the file right away
 		
 		
-		try {
-//			dfsEventSink.append(e);
-//			escapedCustomDfsSink.append(e);
-		} catch (Exception e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
 		
 		Configuration configuration = new Configuration();
 		FileSystem hdfsFileSystem = FileSystem.get(configuration);
@@ -107,7 +93,6 @@ public class SameLogsSink extends EventSink.Base {
 		out.writeChar('\n');
 		out.flush();
 		out.close();
-		
 	}
 
 	@Override
@@ -115,9 +100,6 @@ public class SameLogsSink extends EventSink.Base {
 		// Cleanup
 		pw.flush();
 		pw.close();
-		
-//		dfsEventSink.close();
-//		escapedCustomDfsSink.close();
 	}
 
 	public static SinkBuilder builder() {

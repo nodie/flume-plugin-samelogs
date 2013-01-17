@@ -32,7 +32,7 @@ import com.cloudera.flume.conf.SourceFactory.SourceBuilder;
 import com.cloudera.flume.core.Event;
 import com.cloudera.flume.core.EventImpl;
 import com.cloudera.flume.core.EventSource;
-import com.cloudera.flume.handlers.text.TailSource;
+import com.cloudera.flume.handlers.text.TailDirSource;
 import com.cloudera.util.Pair;
 import com.google.common.base.Preconditions;
 
@@ -43,14 +43,26 @@ import com.google.common.base.Preconditions;
 public class SameLogsSource extends EventSource.Base {
 	static final Logger LOG = LoggerFactory.getLogger(SameLogsSource.class);
 	
-	private TailSource tailSource;
+	//private TailSource tailSource;
+	private TailDirSource tailDirSource;
 	private Event eventImpl;
 	
 	public SameLogsSource() {
+		/*
 	    File f = new File("/home/samelog/logs/rtb_test.2011-11-15.18.Standard.192.168.32.134");
 		tailSource = new TailSource(f, 1024, 100, true);
 		try {
 			tailSource.open();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+		
+	    File f = new File("/home/samelog/logs");
+		tailDirSource = new TailDirSource(f, ".*");
+		try {
+			tailDirSource.open();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -73,7 +85,7 @@ public class SameLogsSource extends EventSource.Base {
 			String dateString = formatter.format(currentTime);
 
 			eventImpl = new EventImpl();
-			eventImpl = tailSource.next();
+			eventImpl = tailDirSource.next();
 			//	add new attr "TIME"
 			eventImpl.set("TIME", dateString.getBytes());
 			updateEventProcessingStats(eventImpl);
@@ -92,7 +104,8 @@ public class SameLogsSource extends EventSource.Base {
 		// Cleanup
 		eventImpl = null;
 		try {
-			tailSource.close();
+			//tailSource.close();
+			tailDirSource.close();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
